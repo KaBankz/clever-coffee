@@ -2,10 +2,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { useState } from 'react';
-import { Alert, ScrollView, useColorScheme, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  useColorScheme,
+  View,
+} from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import { useMutation } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
 
@@ -28,6 +36,30 @@ type ApiStatusCheck = {
   product_id?: string;
   product_name?: string;
   status?: number;
+};
+
+const api = {
+  getDeepLink: async (): Promise<RequestQrCodeResponse> => {
+    const response = await fetch(
+      'https://causality.xyz/api/requestQrCode?key=$2y$10$W2nCYcBsxvq7LiGljf9xfuT.rLat3z.AcK9gEfvbhI.ML1VYbbgwS&token=AFv4aGPL&browser=nfcp',
+      {
+        method: 'POST',
+      }
+    );
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json() as Promise<RequestQrCodeResponse>;
+  },
+
+  checkStatus: async (code: string): Promise<ApiStatusCheck> => {
+    const response = await fetch(
+      `https://causality.xyz/api/apiStatusCheck?code=${code}`,
+      {
+        method: 'POST',
+      }
+    );
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json() as Promise<ApiStatusCheck>;
+  },
 };
 
 export default function CausePage() {
@@ -61,47 +93,69 @@ export default function CausePage() {
     },
   ]);
 
-  async function getDeepLink() {
-    try {
-      const response = await fetch(
-        'https://causality.xyz/api/requestQrCode?key=$2y$10$W2nCYcBsxvq7LiGljf9xfuT.rLat3z.AcK9gEfvbhI.ML1VYbbgwS&token=AFv4aGPL&browser=nfcp',
-        {
-          method: 'POST',
-        }
-      );
+  const deepLinkMutation = useMutation({
+    mutationFn: api.getDeepLink,
+    onError: (error) => {
+      Alert.alert(t`Error`, t`Failed to get QR code. Please try again.`);
+      console.error('Deep link error:', error);
+    },
+  });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+  const statusCheckMutation = useMutation({
+    mutationFn: api.checkStatus,
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        const now = new Date();
+        setPastVisits((prev) => [
+          {
+            date: now.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            }),
+            time: now.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            }),
+            total: 10.0,
+            partOfStreak: true,
+          },
+          ...prev,
+        ]);
       }
+    },
+    onError: (error) => {
+      Alert.alert(t`Error`, t`Failed to check status. Please try again.`);
+      console.error('Status check error:', error);
+    },
+  });
 
-      const data = (await response.json()) as RequestQrCodeResponse;
-      return data;
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
-    }
-  }
-
-  async function checkStatus(code: string) {
+  // Update the Scan Button press handler
+  const handleScan = async () => {
     try {
-      const response = await fetch(
-        `https://causality.xyz/api/apiStatusCheck?code=${code}`,
-        {
-          method: 'POST',
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      const data = await deepLinkMutation.mutateAsync();
+      if (data?.deeplink) {
+        await Linking.openURL(data.deeplink);
+        Alert.alert(t`Did you scan the NFC tag?`, '', [
+          {
+            text: t`Yes`,
+            onPress: () => {
+              if (data?.qrcode) {
+                statusCheckMutation.mutate(data.qrcode);
+              }
+            },
+          },
+          {
+            text: t`No`,
+            style: 'cancel',
+          },
+        ]);
       }
-
-      const data = (await response.json()) as ApiStatusCheck;
-      console.log(data);
-      return data;
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
-      return null;
+      console.error('Scan process failed:', error);
     }
-  }
+  };
 
   return (
     <ScrollView
@@ -109,7 +163,6 @@ export default function CausePage() {
       contentInsetAdjustmentBehavior='automatic'
       contentInset={{ bottom: paddingBottom }}
       scrollIndicatorInsets={{ bottom: paddingBottom }}>
-      {/* Progress Card */}
       <View className='mx-4 mt-6 overflow-hidden rounded-3xl bg-white dark:bg-coffee-600'>
         <LinearGradient
           colors={
@@ -121,7 +174,7 @@ export default function CausePage() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}>
           <Text className='mb-2 px-4 pt-4 text-lg font-medium text-coffee-400 dark:text-coffee-200'>
-            Progress to Free Coffee
+            <Trans>Progress to Free Coffee</Trans>
           </Text>
           <View className='mb-6 flex-row items-center justify-between px-4'>
             <Text className='text-3xl font-bold text-coffee-600 dark:text-white'>
@@ -130,7 +183,7 @@ export default function CausePage() {
             {pastVisits.length === 5 && (
               <View className='rounded-full bg-green-500/20 px-4 py-2'>
                 <Text className='font-medium text-green-500'>
-                  Ready to Redeem!
+                  <Trans>Ready to Redeem!</Trans>
                 </Text>
               </View>
             )}
@@ -151,10 +204,9 @@ export default function CausePage() {
         </LinearGradient>
       </View>
 
-      {/* Past Visits */}
       <View className='mt-8 px-4'>
         <Text className='mb-4 text-xl font-bold text-coffee-600 dark:text-white'>
-          Past Visits
+          <Trans>Past Visits</Trans>
         </Text>
         <View className='gap-y-3'>
           {pastVisits.map((visit, index) => (
@@ -193,60 +245,29 @@ export default function CausePage() {
         </View>
       </View>
 
-      {/* Scan Button */}
       <Pressable
         className='mx-4 mt-8 overflow-hidden rounded-2xl'
-        onPress={async () => {
-          const data = await getDeepLink();
-          await Linking.openURL(data.deeplink);
-          Alert.alert('Did you scan the NFC tag?', '', [
-            {
-              text: 'Yes',
-              onPress: async () => {
-                const statusResult = await checkStatus(data?.qrcode);
-                if (statusResult?.status === 200) {
-                  const now = new Date();
-                  setPastVisits((prev) => [
-                    {
-                      date: now.toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      }),
-                      time: now.toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      }),
-                      total: 10.0, // You might want to get this from the API response
-                      partOfStreak: true,
-                    },
-                    ...prev,
-                  ]);
-                }
-              },
-            },
-            {
-              text: 'No',
-              style: 'cancel',
-            },
-          ]);
-        }}>
+        onPress={handleScan}
+        disabled={deepLinkMutation.isPending || statusCheckMutation.isPending}>
         <LinearGradient
           colors={['#d97706', '#92400e']}
           className='items-center justify-center p-4'
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}>
           <View className='flex-row items-center gap-x-2 px-4 py-2'>
-            <Ionicons name='scan-outline' size={24} color='white' />
-            <Text className='text-lg font-bold text-white'>
-              <Trans>Scan Loyalty Tag</Trans>
-            </Text>
+            {deepLinkMutation.isPending || statusCheckMutation.isPending ? (
+              <ActivityIndicator color='white' />
+            ) : (
+              <>
+                <Ionicons name='scan-outline' size={24} color='white' />
+                <Text className='text-lg font-bold text-white'>
+                  <Trans>Scan Loyalty Tag</Trans>
+                </Text>
+              </>
+            )}
           </View>
         </LinearGradient>
       </Pressable>
-
-      <View className='h-20' />
     </ScrollView>
   );
 }
