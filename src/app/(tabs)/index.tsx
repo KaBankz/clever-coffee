@@ -5,6 +5,7 @@ import { Alert, ScrollView, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { Trans } from '@lingui/react/macro';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
 
 import { Pressable } from '@/components/Pressable';
@@ -29,6 +30,17 @@ type ApiStatusCheck = {
 };
 
 export default function CausePage() {
+  const paddingBottom = useBottomTabOverflow();
+
+  // Hardcoded data for now
+  const currentStreak = 3; // Out of 5 purchases
+  const pastPurchases = [
+    { date: 'Mar 15, 2024', drink: 'Cappuccino' },
+    { date: 'Mar 13, 2024', drink: 'Latte' },
+    { date: 'Mar 10, 2024', drink: 'Espresso' },
+    { date: 'Mar 8, 2024', drink: 'Americano' },
+  ];
+
   async function getDeepLink() {
     try {
       const response = await fetch(
@@ -43,10 +55,7 @@ export default function CausePage() {
       }
 
       const data = (await response.json()) as RequestQrCodeResponse;
-      console.log(data);
-
       return data;
-      // Handle the response data as needed
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
@@ -72,78 +81,104 @@ export default function CausePage() {
     }
   }
 
-  const paddingBottom = useBottomTabOverflow();
-
   return (
     <ScrollView
-      automaticallyAdjustsScrollIndicatorInsets
+      className='flex-1 bg-neutral-900'
       contentInsetAdjustmentBehavior='automatic'
       contentInset={{ bottom: paddingBottom }}
-      scrollIndicatorInsets={{ bottom: paddingBottom }}
-      className='flex-1'
-      contentContainerClassName='gap-4'>
-      <View className='m-6 flex-row items-center justify-center gap-4 rounded-lg bg-neutral-800 p-6'>
-        <View>
-          <Ionicons name='star' size={40} color='white' />
-        </View>
-        <View>
-          <Ionicons name='star-outline' size={40} color='white' />
-        </View>
-        <View>
-          <Ionicons name='star-outline' size={40} color='white' />
-        </View>
-        <View>
-          <Ionicons name='star-outline' size={40} color='white' />
-        </View>
-        <View>
-          <Ionicons name='star-outline' size={40} color='white' />
+      scrollIndicatorInsets={{ bottom: paddingBottom }}>
+      {/* Progress Card */}
+      <View className='mx-4 mt-6 overflow-hidden rounded-3xl bg-neutral-800'>
+        <LinearGradient
+          colors={['#4F3422', '#2C1810']}
+          className='p-6'
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}>
+          <Text className='mb-2 px-4 pt-4 text-lg font-medium text-neutral-400'>
+            Progress to Free Coffee
+          </Text>
+          <View className='mb-6 flex-row items-center justify-between px-4 py-2'>
+            <Text className='text-3xl font-bold text-white'>
+              {currentStreak}/5
+            </Text>
+            {currentStreak === 5 && (
+              <View className='rounded-full bg-green-500/20 px-4 py-2'>
+                <Text className='font-medium text-green-500'>
+                  Ready to Redeem!
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View className='flex-row justify-between gap-x-2 px-4 pb-4'>
+            {[1, 2, 3, 4, 5].map((index) => (
+              <View
+                key={index}
+                className={`h-3 flex-1 rounded-full ${
+                  index <= currentStreak ? 'bg-amber-500' : 'bg-neutral-700'
+                }`}
+              />
+            ))}
+          </View>
+        </LinearGradient>
+      </View>
+
+      {/* Past Purchases */}
+      <View className='mt-8 px-4'>
+        <Text className='mb-4 text-xl font-bold text-white'>
+          Past Purchases
+        </Text>
+        <View className='gap-y-3'>
+          {pastPurchases.map((purchase, index) => (
+            <View
+              key={index}
+              className='flex-row items-center justify-between rounded-2xl bg-neutral-800 p-4'>
+              <View>
+                <Text className='font-medium text-white'>{purchase.drink}</Text>
+                <Text className='text-sm text-neutral-400'>
+                  {purchase.date}
+                </Text>
+              </View>
+              <Ionicons name='cafe' size={24} color='#d97706' />
+            </View>
+          ))}
         </View>
       </View>
 
-      <View>
-        <Text className='px-4 text-xl font-bold'>Past Visits</Text>
-
-        <View className='gap-2 px-4'>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-        </View>
-      </View>
-
+      {/* Scan Button */}
       <Pressable
-        className='items-center justify-center bg-red-400 p-6'
+        className='mx-4 mt-8 overflow-hidden rounded-2xl'
         onPress={async () => {
-          console.log('Pressed Button');
           const data = await getDeepLink();
           await Linking.openURL(data.deeplink);
           Alert.alert('Did you scan the NFC tag?', '', [
             {
               text: 'Yes',
               onPress: async () => {
-                console.log('Yes Pressed');
                 await checkStatus(data?.qrcode);
               },
             },
             {
               text: 'No',
-              onPress: () => console.log('No Pressed'),
               style: 'cancel',
             },
           ]);
         }}>
-        <Text className='text-2xl font-bold'>
-          <Trans>Scan Loyalty Tag</Trans>
-        </Text>
+        <LinearGradient
+          colors={['#d97706', '#92400e']}
+          className='items-center justify-center p-4'
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}>
+          <View className='flex-row items-center gap-x-2 px-4 py-2'>
+            <Ionicons name='scan-outline' size={24} color='white' />
+            <Text className='text-lg font-bold text-white'>
+              <Trans>Scan Loyalty Tag</Trans>
+            </Text>
+          </View>
+        </LinearGradient>
       </Pressable>
+
+      <View className='h-20' />
     </ScrollView>
   );
 }
