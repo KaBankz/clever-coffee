@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import { Alert } from 'react-native';
+
 import { Trans } from '@lingui/react/macro';
 import * as Linking from 'expo-linking';
 
@@ -72,8 +74,23 @@ export default function CausePage() {
     <Pressable
       className='items-center justify-center bg-red-400 p-6'
       onPress={async () => {
+        console.log('Pressed Button');
         const data = await getDeepLink();
         await Linking.openURL(data.deeplink);
+        Alert.alert('Did you scan the NFC tag?', '', [
+          {
+            text: 'Yes',
+            onPress: async () => {
+              console.log('Yes Pressed');
+              await checkStatus(data?.qrcode);
+            },
+          },
+          {
+            text: 'No',
+            onPress: () => console.log('No Pressed'),
+            style: 'cancel',
+          },
+        ]);
       }}>
       <Text className='text-2xl font-bold'>
         <Trans>Click me</Trans>
