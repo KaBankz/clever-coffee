@@ -26,25 +26,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='index'
         options={{
-          title: t`Read`,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name='cube-scan' size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name='write'
-        options={{
-          title: t`Edit`,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name='file-edit' size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name='causes'
-        options={{
-          title: t`Cause`,
+          title: t`Clever Coffee`,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name='star' size={28} color={color} />
           ),
