@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Alert, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { Trans } from '@lingui/react/macro';
@@ -9,6 +9,7 @@ import * as Linking from 'expo-linking';
 
 import { Pressable } from '@/components/Pressable';
 import { Text } from '@/components/Text';
+import { useBottomTabOverflow } from '@/components/ui/TabBarBackground.ios';
 
 type RequestQrCodeResponse = {
   status: number;
@@ -71,8 +72,53 @@ export default function CausePage() {
     }
   }
 
+  const paddingBottom = useBottomTabOverflow();
+
   return (
-    <View className='flex-1'>
+    <ScrollView
+      automaticallyAdjustsScrollIndicatorInsets
+      contentInsetAdjustmentBehavior='automatic'
+      contentInset={{ bottom: paddingBottom }}
+      scrollIndicatorInsets={{ bottom: paddingBottom }}
+      className='flex-1'
+      contentContainerClassName='gap-4'>
+      <View className='m-6 flex-row items-center justify-center gap-4 rounded-lg bg-neutral-800 p-6'>
+        <View>
+          <Ionicons name='star' size={40} color='white' />
+        </View>
+        <View>
+          <Ionicons name='star-outline' size={40} color='white' />
+        </View>
+        <View>
+          <Ionicons name='star-outline' size={40} color='white' />
+        </View>
+        <View>
+          <Ionicons name='star-outline' size={40} color='white' />
+        </View>
+        <View>
+          <Ionicons name='star-outline' size={40} color='white' />
+        </View>
+      </View>
+
+      <View>
+        <Text className='px-4 text-xl font-bold'>Past Visits</Text>
+
+        <View className='gap-2 px-4'>
+          <View className='rounded-lg bg-neutral-700 p-4'>
+            <Text>Mon, Dec 2, 2024</Text>
+          </View>
+          <View className='rounded-lg bg-neutral-700 p-4'>
+            <Text>Mon, Dec 2, 2024</Text>
+          </View>
+          <View className='rounded-lg bg-neutral-700 p-4'>
+            <Text>Mon, Dec 2, 2024</Text>
+          </View>
+          <View className='rounded-lg bg-neutral-700 p-4'>
+            <Text>Mon, Dec 2, 2024</Text>
+          </View>
+        </View>
+      </View>
+
       <Pressable
         className='items-center justify-center bg-red-400 p-6'
         onPress={async () => {
@@ -98,50 +144,6 @@ export default function CausePage() {
           <Trans>Scan Loyalty Tag</Trans>
         </Text>
       </Pressable>
-
-      <View className='m-6 flex-row items-center justify-center gap-4 rounded-lg bg-neutral-800 p-6'>
-        <View>
-          <Text>Mon</Text>
-          <Ionicons name='star' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Tue</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Wed</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Thu</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Fri</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Sat</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-        <View>
-          <Text>Sun</Text>
-          <Ionicons name='star-outline' size={25} color='white' />
-        </View>
-      </View>
-
-      <View>
-        <Text className='px-4 text-xl font-bold'>Past Visits</Text>
-
-        <View className='gap-2 px-4'>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-          <View className='rounded-lg bg-neutral-700 p-4'>
-            <Text>Mon, Dec 2, 2024</Text>
-          </View>
-        </View>
-      </View>
-    </View>
+    </ScrollView>
   );
 }
