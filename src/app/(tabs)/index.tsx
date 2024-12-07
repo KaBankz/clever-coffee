@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, ScrollView, useColorScheme, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { Trans } from '@lingui/react/macro';
@@ -30,9 +30,9 @@ type ApiStatusCheck = {
 };
 
 export default function CausePage() {
+  const colorScheme = useColorScheme();
   const paddingBottom = useBottomTabOverflow();
 
-  // Updated hardcoded data
   const pastVisits = [
     {
       date: 'Mar 15, 2024',
@@ -102,22 +102,26 @@ export default function CausePage() {
 
   return (
     <ScrollView
-      className='flex-1 bg-neutral-900'
+      className='flex-1 bg-coffee-50 dark:bg-coffee-700'
       contentInsetAdjustmentBehavior='automatic'
       contentInset={{ bottom: paddingBottom }}
       scrollIndicatorInsets={{ bottom: paddingBottom }}>
       {/* Progress Card */}
-      <View className='mx-4 mt-6 overflow-hidden rounded-3xl bg-neutral-800'>
+      <View className='mx-4 mt-6 overflow-hidden rounded-3xl bg-white dark:bg-coffee-600'>
         <LinearGradient
-          colors={['#4F3422', '#2C1810']}
+          colors={
+            colorScheme === 'dark'
+              ? ['#4F3422', '#2C1810']
+              : ['#F5E6D3', '#FFFFFF']
+          }
           className='p-6'
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}>
-          <Text className='mb-2 px-4 pt-4 text-lg font-medium text-neutral-400'>
+          <Text className='mb-2 px-4 pt-4 text-lg font-medium text-coffee-400 dark:text-coffee-200'>
             Progress to Free Coffee
           </Text>
-          <View className='mb-6 flex-row items-center justify-between px-4 py-2'>
-            <Text className='text-3xl font-bold text-white'>
+          <View className='mb-6 flex-row items-center justify-between'>
+            <Text className='px-4 text-3xl font-bold text-coffee-600 dark:text-white'>
               {pastVisits.length}/5
             </Text>
             {pastVisits.length === 5 && (
@@ -134,7 +138,9 @@ export default function CausePage() {
               <View
                 key={index}
                 className={`h-3 flex-1 rounded-full ${
-                  index <= pastVisits.length ? 'bg-amber-500' : 'bg-neutral-700'
+                  index <= pastVisits.length
+                    ? 'bg-amber-500'
+                    : 'bg-coffee-100 dark:bg-coffee-500'
                 }`}
               />
             ))}
@@ -144,27 +150,39 @@ export default function CausePage() {
 
       {/* Past Visits */}
       <View className='mt-8 px-4'>
-        <Text className='mb-4 text-xl font-bold text-white'>Past Visits</Text>
+        <Text className='mb-4 text-xl font-bold text-coffee-600 dark:text-white'>
+          Past Visits
+        </Text>
         <View className='gap-y-3'>
           {pastVisits.map((visit, index) => (
             <View
               key={index}
-              className='flex-row items-center justify-between rounded-2xl bg-neutral-800 p-4'>
+              className='flex-row items-center justify-between rounded-2xl bg-white p-4 dark:bg-coffee-600'>
               <View className='flex-1'>
                 <View className='flex-row items-center justify-between'>
-                  <Text className='font-medium text-white'>
+                  <Text className='font-medium text-coffee-600 dark:text-white'>
                     ${visit.total.toFixed(2)}
                   </Text>
                   <Ionicons
                     name={visit.partOfStreak ? 'cafe' : 'cafe-outline'}
                     size={24}
-                    color={visit.partOfStreak ? '#d97706' : '#6b7280'}
+                    color={
+                      visit.partOfStreak
+                        ? '#d97706'
+                        : colorScheme === 'dark'
+                          ? '#A87B51'
+                          : '#795438'
+                    }
                   />
                 </View>
                 <View className='mt-1 flex-row items-center gap-x-2'>
-                  <Text className='text-sm text-neutral-400'>{visit.date}</Text>
-                  <Text className='text-sm text-neutral-500'>•</Text>
-                  <Text className='text-sm text-neutral-400'>{visit.time}</Text>
+                  <Text className='text-coffee-400 dark:text-coffee-200'>
+                    {visit.date}
+                  </Text>
+                  <Text className='text-coffee-300'>•</Text>
+                  <Text className='text-coffee-400 dark:text-coffee-200'>
+                    {visit.time}
+                  </Text>
                 </View>
               </View>
             </View>
