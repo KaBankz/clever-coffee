@@ -1,6 +1,7 @@
 import { useColorScheme } from 'react-native';
 
 import { i18n } from '@lingui/core';
+import { t } from '@lingui/core/macro';
 import { I18nProvider } from '@lingui/react';
 import {
   DarkTheme,
@@ -31,7 +32,11 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
-            <Stack.Screen name='index' />
+            <Stack.Screen
+              name='index'
+              options={{ headerShown: false, title: t`Home` }}
+            />
+            <Stack.Screen name='store' />
             <Stack.Screen name='+not-found' />
           </Stack>
           <StatusBar style='auto' />
