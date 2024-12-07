@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import { useState } from 'react';
 import { Alert, ScrollView, useColorScheme, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -33,7 +34,7 @@ export default function CausePage() {
   const colorScheme = useColorScheme();
   const paddingBottom = useBottomTabOverflow();
 
-  const pastVisits = [
+  const [pastVisits, setPastVisits] = useState([
     {
       date: 'Mar 15, 2024',
       time: '09:30 AM',
@@ -58,7 +59,7 @@ export default function CausePage() {
       total: 6.5,
       partOfStreak: false,
     },
-  ];
+  ]);
 
   async function getDeepLink() {
     try {
@@ -95,8 +96,10 @@ export default function CausePage() {
 
       const data = (await response.json()) as ApiStatusCheck;
       console.log(data);
+      return data;
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
+      return null;
     }
   }
 
@@ -120,8 +123,8 @@ export default function CausePage() {
           <Text className='mb-2 px-4 pt-4 text-lg font-medium text-coffee-400 dark:text-coffee-200'>
             Progress to Free Coffee
           </Text>
-          <View className='mb-6 flex-row items-center justify-between'>
-            <Text className='px-4 text-3xl font-bold text-coffee-600 dark:text-white'>
+          <View className='mb-6 flex-row items-center justify-between px-4'>
+            <Text className='text-3xl font-bold text-coffee-600 dark:text-white'>
               {pastVisits.length}/5
             </Text>
             {pastVisits.length === 5 && (
@@ -141,7 +144,7 @@ export default function CausePage() {
                   index <= pastVisits.length
                     ? 'bg-amber-500'
                     : 'bg-coffee-100 dark:bg-coffee-500'
-                }`}
+                } ${pastVisits.length === 5 ? 'bg-green-500' : ''}`}
               />
             ))}
           </View>
@@ -200,7 +203,27 @@ export default function CausePage() {
             {
               text: 'Yes',
               onPress: async () => {
-                await checkStatus(data?.qrcode);
+                const statusResult = await checkStatus(data?.qrcode);
+                if (statusResult?.status === 200) {
+                  const now = new Date();
+                  setPastVisits((prev) => [
+                    {
+                      date: now.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }),
+                      time: now.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      }),
+                      total: 10.0, // You might want to get this from the API response
+                      partOfStreak: true,
+                    },
+                    ...prev,
+                  ]);
+                }
               },
             },
             {
