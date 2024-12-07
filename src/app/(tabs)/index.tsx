@@ -32,13 +32,32 @@ type ApiStatusCheck = {
 export default function CausePage() {
   const paddingBottom = useBottomTabOverflow();
 
-  // Hardcoded data for now
-  const currentStreak = 3; // Out of 5 purchases
-  const pastPurchases = [
-    { date: 'Mar 15, 2024', drink: 'Cappuccino' },
-    { date: 'Mar 13, 2024', drink: 'Latte' },
-    { date: 'Mar 10, 2024', drink: 'Espresso' },
-    { date: 'Mar 8, 2024', drink: 'Americano' },
+  // Updated hardcoded data
+  const pastVisits = [
+    {
+      date: 'Mar 15, 2024',
+      time: '09:30 AM',
+      total: 12.5,
+      partOfStreak: true,
+    },
+    {
+      date: 'Mar 13, 2024',
+      time: '08:45 AM',
+      total: 8.75,
+      partOfStreak: true,
+    },
+    {
+      date: 'Mar 10, 2024',
+      time: '02:15 PM',
+      total: 15.0,
+      partOfStreak: true,
+    },
+    {
+      date: 'Mar 8, 2024',
+      time: '11:20 AM',
+      total: 6.5,
+      partOfStreak: false,
+    },
   ];
 
   async function getDeepLink() {
@@ -99,9 +118,9 @@ export default function CausePage() {
           </Text>
           <View className='mb-6 flex-row items-center justify-between px-4 py-2'>
             <Text className='text-3xl font-bold text-white'>
-              {currentStreak}/5
+              {pastVisits.length}/5
             </Text>
-            {currentStreak === 5 && (
+            {pastVisits.length === 5 && (
               <View className='rounded-full bg-green-500/20 px-4 py-2'>
                 <Text className='font-medium text-green-500'>
                   Ready to Redeem!
@@ -115,7 +134,7 @@ export default function CausePage() {
               <View
                 key={index}
                 className={`h-3 flex-1 rounded-full ${
-                  index <= currentStreak ? 'bg-amber-500' : 'bg-neutral-700'
+                  index <= pastVisits.length ? 'bg-amber-500' : 'bg-neutral-700'
                 }`}
               />
             ))}
@@ -123,23 +142,31 @@ export default function CausePage() {
         </LinearGradient>
       </View>
 
-      {/* Past Purchases */}
+      {/* Past Visits */}
       <View className='mt-8 px-4'>
-        <Text className='mb-4 text-xl font-bold text-white'>
-          Past Purchases
-        </Text>
+        <Text className='mb-4 text-xl font-bold text-white'>Past Visits</Text>
         <View className='gap-y-3'>
-          {pastPurchases.map((purchase, index) => (
+          {pastVisits.map((visit, index) => (
             <View
               key={index}
               className='flex-row items-center justify-between rounded-2xl bg-neutral-800 p-4'>
-              <View>
-                <Text className='font-medium text-white'>{purchase.drink}</Text>
-                <Text className='text-sm text-neutral-400'>
-                  {purchase.date}
-                </Text>
+              <View className='flex-1'>
+                <View className='flex-row items-center justify-between'>
+                  <Text className='font-medium text-white'>
+                    ${visit.total.toFixed(2)}
+                  </Text>
+                  <Ionicons
+                    name={visit.partOfStreak ? 'cafe' : 'cafe-outline'}
+                    size={24}
+                    color={visit.partOfStreak ? '#d97706' : '#6b7280'}
+                  />
+                </View>
+                <View className='mt-1 flex-row items-center gap-x-2'>
+                  <Text className='text-sm text-neutral-400'>{visit.date}</Text>
+                  <Text className='text-sm text-neutral-500'>•</Text>
+                  <Text className='text-sm text-neutral-400'>{visit.time}</Text>
+                </View>
               </View>
-              <Ionicons name='cafe' size={24} color='#d97706' />
             </View>
           ))}
         </View>
