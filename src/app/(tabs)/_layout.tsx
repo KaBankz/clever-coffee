@@ -41,6 +41,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name='causes'
+        options={{
+          title: t`Cause`,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name='star' size={28} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
