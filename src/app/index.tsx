@@ -198,7 +198,7 @@ export default function CleverCoffee() {
               <Text className='text-3xl font-bold text-coffee-600 dark:text-white'>
                 {pastVisits.length}/5
               </Text>
-              {pastVisits.length === 5 && (
+              {pastVisits.length >= 5 && (
                 <View className='rounded-full bg-green-500/20 px-4 py-2'>
                   <Text className='font-medium text-green-500'>
                     <Trans>Ready to Redeem!</Trans>
@@ -215,7 +215,7 @@ export default function CleverCoffee() {
                     index <= pastVisits.length
                       ? 'bg-amber-500'
                       : 'bg-coffee-100 dark:bg-coffee-500'
-                  } ${pastVisits.length === 5 ? 'bg-green-500' : ''}`}
+                  } ${pastVisits.length >= 5 ? 'bg-green-500' : ''}`}
                 />
               ))}
             </View>
