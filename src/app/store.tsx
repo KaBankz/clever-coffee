@@ -47,14 +47,12 @@ const api = {
     key: string;
     token: string;
   }): Promise<RequestQrCodeResponse> => {
-    console.log(key, token);
     const response = await fetch(
       `https://causality.xyz/api/requestQrCode?key=${key}&token=${token}`,
       {
         method: 'POST',
       }
     );
-    console.log(response);
     if (!response.ok) throw new Error('Network response was not ok');
     return response.json() as Promise<RequestQrCodeResponse>;
   },
