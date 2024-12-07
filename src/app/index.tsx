@@ -157,6 +157,15 @@ export default function CleverCoffee() {
     }
   };
 
+  if (deepLinkMutation.isPending || statusCheckMutation.isPending) {
+    return (
+      <ActivityIndicator
+        color={colorScheme === 'dark' ? 'white' : 'black'}
+        className='flex-1 items-center justify-center'
+      />
+    );
+  }
+
   return (
     <>
       <Stack.Screen
@@ -266,16 +275,12 @@ export default function CleverCoffee() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}>
             <View className='flex-row items-center gap-x-2 px-4 py-2'>
-              {deepLinkMutation.isPending || statusCheckMutation.isPending ? (
-                <ActivityIndicator color='white' />
-              ) : (
-                <>
-                  <Ionicons name='scan-outline' size={24} color='white' />
-                  <Text className='text-lg font-bold text-white'>
-                    <Trans>Scan Loyalty Tag</Trans>
-                  </Text>
-                </>
-              )}
+              <>
+                <Ionicons name='scan-outline' size={24} color='white' />
+                <Text className='text-lg font-bold text-white'>
+                  <Trans>Scan Loyalty Tag</Trans>
+                </Text>
+              </>
             </View>
           </LinearGradient>
         </Pressable>
