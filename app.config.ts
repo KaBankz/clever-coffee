@@ -1,12 +1,12 @@
 import type { ExpoConfig } from 'expo/config';
 
 const config: ExpoConfig = {
-  name: 'NFC Playground',
-  slug: 'nfcp',
+  name: 'Clever Coffee',
+  slug: 'clever-coffee',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './src/assets/images/icon.png',
-  scheme: 'myapp',
+  scheme: 'clevercoffee',
   userInterfaceStyle: 'automatic',
   splash: {
     image: './src/assets/images/icon.png',
@@ -15,7 +15,7 @@ const config: ExpoConfig = {
   },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.kabanks.nfcp',
+    bundleIdentifier: 'com.kabanks.clevercoffee',
   },
   android: {
     adaptiveIcon: {
